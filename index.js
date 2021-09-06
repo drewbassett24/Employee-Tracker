@@ -119,8 +119,8 @@ const mainmenu = () => {
 const viewEmployees = () => {
     const query =
         'select employees.id AS "Employee Id", CONCAT(employees.first_name, " ", employees.last_name) AS "Full Name", roles.title AS "Role", roles.salary AS "Salary", departments.name as "Department", CONCAT(managers.first_name, " ", managers.last_name) AS "Manager" from employees join roles on employees.role_id + roles.id join departments on roles.department_id + departments.id join employees managers ON employees.manager_id = managers.id order by employees.last_name ASC';
- 
-    CONNECTION.QUERY(QUERY, (ERR, RES) => {
+
+        connection.query(query, (err, res) => {
         if (err) throw err;
         console.table(res)
         mainMenu();
