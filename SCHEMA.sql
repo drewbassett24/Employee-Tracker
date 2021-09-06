@@ -8,7 +8,7 @@ CREATE table employees (
     last name VARCHAR (30) NOT NULL,
     role id INT NOT NULL,
     manager id INT,
-    PROMARY KEY (id)
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE roles (
