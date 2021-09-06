@@ -223,9 +223,55 @@ const viewEmployeeManagers = () => {
     });
 }
 
-
 // adding employees (and role/manager)
+const addEmployee = () => {
+    connection.query('SELECT id, title FROM roles', function (error, rows) {
 
+        const roles = rows.map(row => ({ value: row.id, name: row.title }));
+        connection.query('SELECT DISTINCT managers.id, CONCAT(managers.first_name, " ", managers.last_name) AS "full_name" FROM employees join employees managers ON employees.manager_id = managers.id;', function (error, rows) {
+
+            const manager = rows.map(row => ({ value: row.id, name: `${row.full_name}`}));
+            const newEmployeeMenu = [
+                {
+                    name: 'first_name',
+                    type: 'input',
+                    message: 'What is the new employees first name?',
+                },
+                {
+                    name: 'last_name',
+                    type: 'input',
+                    message: 'What is the new employees last name?',
+
+                },
+                {
+                    name: 'role_id',
+                    type: 'list',
+                    message: 'What is their role?',
+                    choices: roles
+                },
+                {
+                    name: 'manager_id',
+                    type: 'list',
+                    message: 'What is the name of their manager?',
+                    choices: manager
+                }
+            ];
+
+            inquirer.prompt(newEmployeeMenu).then((answers) => {
+                var query = `INSERT ONTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`;
+                connection.query(query, [answers.first_name, answers.last_name, answers.role_id, answers.manager_id], function (error, rows) {
+                    if (error) {
+                        console.log(error);
+                    }
+                    else {
+                        viewEmployees();
+
+                    }
+                });
+            });
+        });
+    });
+}
 
 
 // adding a role
