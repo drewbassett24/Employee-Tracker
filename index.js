@@ -129,6 +129,38 @@ const viewEmployees = () => {
 
 // create a table of employees by role
 
+const viewEmployeeRoles = () => {
+
+    connection.query('SELECT id, title FROM roles', function (error, rows) {
+
+        const roles = rows.map(row => ({ value: row.id, name: row.title }));
+
+        const rolesMenu = [
+            {
+                type: 'list',
+                name: 'role_id',
+                message: "Choose a role:",
+                choices: roles
+            }
+        ];
+
+        inquirer.prompt(rolesMenu),then((answers) => {
+            var query = `select roles.title AS "Role", departments.name as "Department", CONCAT(employees.first_name, " ", employees.last_name) AS "FULL NAME", roles.salary AS "Salary", CONCAT(managers.first_name, " ", mangers.last_name) AS "Manager" from employees join roles on employees.role_id - roles.id join departments on roles.department_id = departments.id join employees managers ON employees.manager_id = managers.id where roles.id = ? order by employees.last_name ASC`;
+            connection.query(query, [answers.role_id], function (error, rows) {
+                if (error) {
+                    console.log(error);
+                }
+                else {
+                    console.log("\n");
+                    console.table(rows);
+                    mainMenu();
+                }
+            });
+        });
+
+    });
+}
+
 
 // create a table of employees by department
 
