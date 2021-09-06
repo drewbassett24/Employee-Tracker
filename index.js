@@ -196,7 +196,7 @@ const viewEmployeeDepartments = () => {
 // create a table of employees by manager
 const viewEmployeeManagers = () => {
     connection.query('SELECT DISTINCT viewEmployeeManagers.id, CONCAT(managers.first_name, " ", managers.last_name AS "full-name"FROM employees join employees managers ON employees.manager_id = managers.id;', function (error, rows) {
-        const managers = rows.map(row => ({ value: row.id, name: `${row.full_name}`}));
+        const managers = rows.map(row => ({ value: row.id, name: `${row.full_name}` }));
         const managersMenu = [
             {
                 type: 'list',
@@ -230,7 +230,7 @@ const addEmployee = () => {
         const roles = rows.map(row => ({ value: row.id, name: row.title }));
         connection.query('SELECT DISTINCT managers.id, CONCAT(managers.first_name, " ", managers.last_name) AS "full_name" FROM employees join employees managers ON employees.manager_id = managers.id;', function (error, rows) {
 
-            const manager = rows.map(row => ({ value: row.id, name: `${row.full_name}`}));
+            const manager = rows.map(row => ({ value: row.id, name: `${row.full_name}` }));
             const newEmployeeMenu = [
                 {
                     name: 'first_name',
@@ -277,7 +277,7 @@ const addEmployee = () => {
 // adding a role
 const addRole = () => {
     connection.query('SELECT id, name FROM departments', function (error, rows) {
-        const departments = rows.map(row => ({ value: row.id, name: row.name}));
+        const departments = rows.map(row => ({ value: row.id, name: row.name }));
         const newRoleMenu = [
             {
                 name: 'title',
@@ -333,7 +333,7 @@ const addDepertament = () => {
                 console.log(error);
             }
             else {
-                viewEmployees ();
+                viewEmployees();
 
             }
         });
@@ -364,7 +364,7 @@ const updateEmployeeRole = () => {
                 },
 
             ];
-            
+
             inquirer.prompt(updateEmployeeRoleMenue).then((answers) => {
                 var query = `UPDATE employees SET role+id = ? WHERE id = ? `;
                 connection.query(query, [answers.role_id, answers.employee_id], function (error, rows) {
@@ -433,7 +433,7 @@ const updateEmployeeManager = () => {
 const removeEmployee = () => {
     connection.query('SELECT id, CONCAT (first_name, " ", last_name, " ", last_name) AS full_name FROM employees', function (error, rows) {
 
-        const employees = rows.map(row => ({ value: row.id, name: `ID ${row.id}: ${row. full_name}` }));
+        const employees = rows.map(row => ({ value: row.id, name: `ID ${row.id}: ${row.full_name}` }));
         employees.push("Exit");
 
         const removeEmployeeMenu = [
@@ -466,9 +466,50 @@ const removeEmployee = () => {
     });
 }
 
-
 // removing role
+const removeRole = () => {
+    connection.query('SELECT roles.id, roles.title, name AS department FROM roles JOIN  department ON roles.department_id = departments.id', function (error, rows) {
+        const roles = rows.map(row => ({ value: row.id, name: `${row.title} ${row.department}` }));
+        roles.push("Exit");
 
+        const removeRoleMenu = [
+            {
+                name: 'role_id',
+                type: 'list',
+                message: 'Which role is no longer required?',
+                choices: roles
+            },
+        ];
+
+        inquirer.prompt(removeRoleMenu).then((answers) => {
+            if (answers.role_id != "Exit") {
+
+                var query = `SELECT * FROM employees WHERE role_id = ?`;
+
+                connection.query(query, [answers.role_id], function (error, rows) {
+
+                    if (rows.length > 0) {
+                        console.error("This role is occupied and deleting it would make people in redundant. Role not deleted");
+                        mainMenu();
+                    }
+                    else {
+                        var query = 'DELETE FROM roles WHERE id = ?';
+                        connection.query(query, [answers.role_id], function (error, rows) {
+                            if (error) {
+                                console.log(error);
+                            }
+                            else {
+                                console.log("Role deleted");
+                                viewEmployees();
+                            }
+                        });
+                    }
+                });
+            }
+        })
+
+    });
+}
 
 
 // removing dept
