@@ -316,6 +316,30 @@ const addRole = () => {
 }
 
 // adding a dept
+const add Depertament = () => {
+    const newDepartmentMenu = [
+        {
+            name: 'name',
+            type: 'input',
+            message: 'What department would you like to add?',
+
+        },
+
+    ];
+    inquirer.prompt(newDepartmentMenu).then((answers) => {
+        var query = `INSERT INTO departments (name) VALUES (?)`;
+        connection.query(query, [answers.name], function (error, rows) {
+            if (error) {
+                console.log(error);
+            }
+            else {
+                viewEmployees ();
+
+            }
+        });
+
+    });
+}
 
 
 // updating a role
