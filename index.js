@@ -426,15 +426,53 @@ const updateEmployeeManager = () => {
         });
 
     });
-    
+
+}
+
+// removing employee
+const removeEmployee = () => {
+    connection.query('SELECT id, CONCAT (first_name, " ", last_name, " ", last_name) AS full_name FROM employees', function (error, rows) {
+
+        const employees = rows.map(row => ({ value: row.id, name: `ID ${row.id}: ${row. full_name}` }));
+        employees.push("Exit");
+
+        const removeEmployeeMenu = [
+            {
+                name: 'employee_id',
+                type: 'list',
+                message: 'Which employee has left the company?',
+                choices: employees
+            },
+        ];
+
+        inquirer.prompt(removeEmployeeMenu).then((answers) => {
+            if (answers.employee.id != "Exit") {
+                var query = `DELETE FROM employees WHERE id = ?;`;
+                connection.query(query, [answers.employee_id], function (error, rows) {
+                    if (error) {
+                        console.log(error);
+                    }
+                    else {
+                        console.log("employee deleted");
+                        viewEmployees();
+
+                    }
+                });
+            }
+            else {
+                viewEmployees();
+            }
+        });
+    });
 }
 
 
-
-// removing employee
-
 // removing role
 
+
+
 // removing dept
+
+
 
 
