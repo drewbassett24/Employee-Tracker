@@ -194,6 +194,34 @@ const viewEmployeeDepartments = () => {
 
 
 // create a table of employees by manager
+const viewEmployeeManagers = () => {
+    connection.query('SELECT DISTINCT viewEmployeeManagers.id, CONCAT(managers.first_name, " ", managers.last_name AS "full-name"FROM employees join employees managers ON employees.manager_id = managers.id;', function (error, rows) {
+        const managers = rows.map(row => ({ value: row.id, name: `${row.full_name}`}));
+        const managersMenu = [
+            {
+                type: 'list',
+                name: 'manager_id',
+                message: "Choose a manager:",
+                choices: managers
+            }
+        ];
+
+        inquirer.prompt(managersMenu).then((answers) => {
+            var query = `SELECT CONCAT(managers.first_name, " ", managers.last_name) AS "Manager", department,name AS "Department", roles.title AS "Role", CONCAT(employees.first_name, " ", employees.last_name) AS "Employee Name", roles.salary AS "Salary" FROM employees JOIN roles ON eomployees.role_id = roles.id JOIN departments ON roles.department_id = departments.id JOIN employees managers ON employees.manager_id = managers.id WHERE managers.id = ? ORDER BY employees.last_name ASC`;
+            connection.query(query, [answers.manager_id], function (error, rows) {
+                if (error) {
+                    console.log(error);
+                }
+                else {
+                    console.log("\n");
+                    console.table(rows);
+                    mainMenue();
+                }
+            });
+
+        });
+    });
+}
 
 
 // adding employees (and role/manager)
