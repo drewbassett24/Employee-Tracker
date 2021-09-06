@@ -316,7 +316,7 @@ const addRole = () => {
 }
 
 // adding a dept
-const add Depertament = () => {
+const addDepertament = () => {
     const newDepartmentMenu = [
         {
             name: 'name',
@@ -342,7 +342,46 @@ const add Depertament = () => {
 }
 
 
-// updating a role
+// updating an empoyee's role
+const updateEmployeeRole = () => {
+    connection.query('SELECT id, CONCAT (first_name, " ", last_name) AS full_name FROM employees;', function (error, rows) {
+        const employees = rows.map(row => ({ value: row.id, name: row.full_name }));
+
+        connection.query('SELECT roles.id, title, departments.name AS department FROM roles JOIN departments ON roles.department_id = departments.id;', function (error, rows) {
+            const roles = rows.map(row => ({ value: row.id, name: `${row.title} (${row.department})` }));
+            const updateEmployeeRoleMenu = [
+                {
+                    name: 'employee_id',
+                    type: 'list',
+                    message: 'Which employee would you like to update?',
+                    choices: employees
+                },
+                {
+                    name: 'role_id',
+                    type: 'list',
+                    message: 'What is their new role?',
+                    choices: roles
+                },
+
+            ];
+            
+            inquirer.prompt(updateEmployeeRoleMenue).then((answers) => {
+                var query = `UPDATE employees SET role+id = ? WHERE id = ? `;
+                connection.query(query, [answers.role_id, answers.employee_id], function (error, rows) {
+                    if (error) {
+                        console.log(error);
+                    }
+                    else {
+                        viewEmployees();
+
+                    }
+                });
+            });
+        });
+    });
+}
+
+
 
 
 // updating a manager (make sure employee cannot be own manager)
