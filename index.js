@@ -275,7 +275,45 @@ const addEmployee = () => {
 
 
 // adding a role
+const addRole = () => {
+    connection.query('SELECT id, name FROM departments', function (error, rows) {
+        const departments = rows.map(row => ({ value: row.id, name: row.name}));
+        const newRoleMenu = [
+            {
+                name: 'title',
+                type: 'input',
+                message: 'What role would you like to add?',
+            },
+            {
+                name: 'salary',
+                type: 'number',
+                message: 'What is the salary for this role?',
 
+            },
+            {
+                name: 'department_id',
+                type: 'list',
+                message: 'What department is that in?',
+                choices: departments
+
+            },
+        ];
+
+
+        inquirer.prompt(newRoleMenu).then((answers) => {
+            var query = `INSERT INTO roles (title, salary, department_id) VALUES (?, ?, ?)`;
+            connection.query(query, [answers.title, answers.salary, answers.department_id], function (error, rows) {
+                if (error) {
+                    console.log(error);
+                }
+                else {
+                    viewEmployees();
+
+                }
+            });
+        });
+    });
+}
 
 // adding a dept
 
