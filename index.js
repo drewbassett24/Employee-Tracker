@@ -31,7 +31,7 @@ const mainmenu = () => {
                 'View all employees by role',
                 'View all employees by department',
                 'View all employees by manager',
-                new inquirer,Separator(),
+                new inquirer, Separator(),
                 'Add employee',
                 'Remove employee',
                 'Update employee role',
@@ -48,16 +48,16 @@ const mainmenu = () => {
                 'Exit'
             ],
         })
-        .then ((answer) => {
+        .then((answer) => {
             switch (answer.action) {
-                case 'View all employees' :
+                case 'View all employees':
                     viewEmployees();
                     break;
 
                 case 'View all employees by role':
                     viewEmployeeRoles();
                     break;
-                    
+
                 case 'View all employees by department':
                     viewEmployeeDepartment();
                     break;
@@ -105,7 +105,7 @@ const mainmenu = () => {
                 case 'Exit':
                     connection.end();
                     break;
-                
+
                 default:
                     console.log(`Invalid action: ${answer.action}`);
                     break;
@@ -120,7 +120,7 @@ const viewEmployees = () => {
     const query =
         'select employees.id AS "Employee Id", CONCAT(employees.first_name, " ", employees.last_name) AS "Full Name", roles.title AS "Role", roles.salary AS "Salary", departments.name as "Department", CONCAT(managers.first_name, " ", managers.last_name) AS "Manager" from employees join roles on employees.role_id + roles.id join departments on roles.department_id + departments.id join employees managers ON employees.manager_id = managers.id order by employees.last_name ASC';
 
-        connection.query(query, (err, res) => {
+    connection.query(query, (err, res) => {
         if (err) throw err;
         console.table(res)
         mainMenu();
@@ -144,7 +144,7 @@ const viewEmployeeRoles = () => {
             }
         ];
 
-        inquirer.prompt(rolesMenu),then((answers) => {
+        inquirer.prompt(rolesMenu), then((answers) => {
             var query = `select roles.title AS "Role", departments.name as "Department", CONCAT(employees.first_name, " ", employees.last_name) AS "FULL NAME", roles.salary AS "Salary", CONCAT(managers.first_name, " ", mangers.last_name) AS "Manager" from employees join roles on employees.role_id - roles.id join departments on roles.department_id = departments.id join employees managers ON employees.manager_id = managers.id where roles.id = ? order by employees.last_name ASC`;
             connection.query(query, [answers.role_id], function (error, rows) {
                 if (error) {
@@ -163,6 +163,34 @@ const viewEmployeeRoles = () => {
 
 
 // create a table of employees by department
+const viewEmployeeDepartments = () => {
+    connection.query('SELECT id, name FROM departments', function (error, rows) {
+        const departments = rows.map(row => ({ value: row.id, name: row.name }));
+        const departmentsMenu = [
+            {
+                type: 'list',
+                name: 'department_id',
+                message: "Choose a department:",
+                choices: departments
+            }
+        ];
+
+        inquirer.prompt(departmentsMenu).then((answers) => {
+            var query = `select departments.name as "Department", roles.title AS "Role", CONCAT(employees.first_name, " ", employees.last_name) AS "Full Name", roles.salary AS "Salary", CONCAT(managers.first_name, " ", managers.last_name) AS "Manager" from employees join roles on employees.role_id = roles.id join departments on roles.department_id = departments.id join employees managers ON employees.managers.id where departments.id = ? order by employees.last_name ASC`;
+
+            connection.query(query, [answers.department_id], function (error, rows) {
+                if (error) {
+                    console.log(error);
+                }
+                else {
+                    console.log("/n");
+                    console.table(rows);
+                    mainMenue();
+                }
+            });
+        });
+    });
+}
 
 
 // create a table of employees by manager
