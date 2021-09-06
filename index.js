@@ -513,7 +513,47 @@ const removeRole = () => {
 
 
 // removing dept
+const removeDepartment = () => {
+    connection.query('SELECT id, name FROM departments', function (error, rows) {
+        const departments = rows.map(row => ({ value: row.id, name: row.name}));
+        departments.push("Exit");
 
+        const removeDepartmentMenu = [
+            {
+                name: 'department_id',
+                type: 'list',
+                message: 'Which department is now obsolete?',
+                choices: departments
+            },
+        ];
+
+        inquirer.prompt(removeDepartmentMenu).then((answers) => {
+            if (answers.department_id != "Exit") {
+                var query = `SELECT * FROM roles WHERE department_id = ?`;
+                connection.query(query, [answers.department_id], function (error, rows) {
+
+                    if (rows.length > 0) {
+                    console.error("This department is in use; department not deleted");
+                    mainMenu();
+                }
+            else {
+                var query = 'DELETE FROM departments WHERE id = ?';
+                connection.query(query, [answers.department_id], function (error, rows) {
+                    if (error) {
+                        console.log(error);
+                    }
+                    else {
+                        console.log("department deleted");
+                        viewEmployees();
+                    }
+                });
+            }
+        });
+    }
+});
+
+    });
+}
 
 
 
