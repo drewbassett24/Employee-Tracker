@@ -19,7 +19,7 @@ connection.connect((err) => {
 });
 
 // prompt user input
-const mainmenu = () => {
+const mainMenu = () => {
     inquirer
         .prompt({
             name: 'action',
