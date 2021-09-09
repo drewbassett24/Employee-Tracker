@@ -1,3 +1,4 @@
+USE employee_tracker;
 INSERT INTO employee_tracker.departments (name) VALUES ('Sales');
 INSERT INTO employee_tracker.departments (name) VALUES ('Marketing');
 INSERT INTO employee_tracker.departments (name) VALUES ('Development');

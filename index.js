@@ -1,6 +1,6 @@
 const inquirer = require("inquirer");
 const mySQL = require("mysql");
-const consoleTable = require("console.table");
+// const consoleTable = require("console.table");
 
 // connection to mySQL
 const connection = mySQL.createConnection({
@@ -8,7 +8,7 @@ const connection = mySQL.createConnection({
     host: "localhost",
     PORT: 3306,
     user: "root",
-    password: "Password",
+    password: "root",
     database: "employee_tracker",
 
 });
@@ -31,7 +31,7 @@ const mainMenu = () => {
                 'View all employees by role',
                 'View all employees by department',
                 'View all employees by manager',
-                new inquirer, Separator(),
+                new inquirer.Separator(),
                 'Add employee',
                 'Remove employee',
                 'Update employee role',
@@ -59,7 +59,7 @@ const mainMenu = () => {
                     break;
 
                 case 'View all employees by department':
-                    viewEmployeeDepartment();
+                    viewEmployeeDepartments();
                     break;
 
                 case 'View all employees by manager':
@@ -75,7 +75,7 @@ const mainMenu = () => {
                     break;
 
                 case 'Add department':
-                    addDepartment();
+                    addDepertament();
                     break;
 
                 case 'Update employee role':
@@ -144,8 +144,11 @@ const viewEmployeeRoles = () => {
             }
         ];
 
-        inquirer.prompt(rolesMenu), then((answers) => {
-            var query = `select roles.title AS "Role", departments.name as "Department", CONCAT(employees.first_name, " ", employees.last_name) AS "FULL NAME", roles.salary AS "Salary", CONCAT(managers.first_name, " ", mangers.last_name) AS "Manager" from employees join roles on employees.role_id - roles.id join departments on roles.department_id = departments.id join employees managers ON employees.manager_id = managers.id where roles.id = ? order by employees.last_name ASC`;
+        inquirer.prompt(rolesMenu).then((answers) => {
+            var query = `select roles.title AS "Role", departments.name as "Department", 
+            CONCAT(employees.first_name, " ", employees.last_name) AS "FULL NAME", roles.salary AS "Salary", 
+            CONCAT(managers.first_name, " ", managers.last_name) AS "Manager" from employees 
+            join roles on employees.role_id - roles.id join departments on roles.department_id = departments.id join employees managers ON employees.manager_id = managers.id where roles.id = ? order by employees.last_name ASC`;
             connection.query(query, [answers.role_id], function (error, rows) {
                 if (error) {
                     console.log(error);
@@ -176,7 +179,7 @@ const viewEmployeeDepartments = () => {
         ];
 
         inquirer.prompt(departmentsMenu).then((answers) => {
-            var query = `select departments.name as "Department", roles.title AS "Role", CONCAT(employees.first_name, " ", employees.last_name) AS "Full Name", roles.salary AS "Salary", CONCAT(managers.first_name, " ", managers.last_name) AS "Manager" from employees join roles on employees.role_id = roles.id join departments on roles.department_id = departments.id join employees managers ON employees.managers.id where departments.id = ? order by employees.last_name ASC`;
+            var query = `select departments.name as "Department", roles.title AS "Role", CONCAT(employees.first_name, " ", employees.last_name) AS "Full Name", roles.salary AS "Salary", CONCAT(managers.first_name, " ", managers.last_name) AS "Manager" from employees join roles on employees.role_id = roles.id join departments on roles.department_id = departments.id join employees AS managers ON employees.manager_id = managers.id where departments.id = ? order by employees.last_name ASC`;
 
             connection.query(query, [answers.department_id], function (error, rows) {
                 if (error) {
@@ -185,7 +188,7 @@ const viewEmployeeDepartments = () => {
                 else {
                     console.log("/n");
                     console.table(rows);
-                    mainMenue();
+                    mainMenu();
                 }
             });
         });
@@ -195,7 +198,11 @@ const viewEmployeeDepartments = () => {
 
 // create a table of employees by manager
 const viewEmployeeManagers = () => {
-    connection.query('SELECT DISTINCT viewEmployeeManagers.id, CONCAT(managers.first_name, " ", managers.last_name AS "full-name"FROM employees join employees managers ON employees.manager_id = managers.id;', function (error, rows) {
+    connection.query(`SELECT 
+    DISTINCT Managers.id, 
+    CONCAT(managers.first_name, " ", managers.last_name) AS "full_name" 
+    FROM employees join employees managers ON employees.manager_id = managers.id;`
+    , function (error, rows) {
         const managers = rows.map(row => ({ value: row.id, name: `${row.full_name}` }));
         const managersMenu = [
             {
@@ -207,7 +214,12 @@ const viewEmployeeManagers = () => {
         ];
 
         inquirer.prompt(managersMenu).then((answers) => {
-            var query = `SELECT CONCAT(managers.first_name, " ", managers.last_name) AS "Manager", department,name AS "Department", roles.title AS "Role", CONCAT(employees.first_name, " ", employees.last_name) AS "Employee Name", roles.salary AS "Salary" FROM employees JOIN roles ON eomployees.role_id = roles.id JOIN departments ON roles.department_id = departments.id JOIN employees managers ON employees.manager_id = managers.id WHERE managers.id = ? ORDER BY employees.last_name ASC`;
+            var query = `SELECT CONCAT(managers.first_name, " ", managers.last_name) AS "Manager", 
+            departments.name AS "Department", roles.title AS "Role", CONCAT(employees.first_name, " ", 
+            employees.last_name) AS "Employee Name", roles.salary AS "Salary" FROM employees 
+            JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.department_id = departments.id 
+            JOIN employees managers ON employees.manager_id = managers.id WHERE managers.id = ? 
+            ORDER BY employees.last_name ASC`;
             connection.query(query, [answers.manager_id], function (error, rows) {
                 if (error) {
                     console.log(error);
@@ -215,7 +227,7 @@ const viewEmployeeManagers = () => {
                 else {
                     console.log("\n");
                     console.table(rows);
-                    mainMenue();
+                    mainMenu();
                 }
             });
 
@@ -365,7 +377,7 @@ const updateEmployeeRole = () => {
 
             ];
 
-            inquirer.prompt(updateEmployeeRoleMenue).then((answers) => {
+            inquirer.prompt(updateEmployeeRoleMenu).then((answers) => {
                 var query = `UPDATE employees SET role+id = ? WHERE id = ? `;
                 connection.query(query, [answers.role_id, answers.employee_id], function (error, rows) {
                     if (error) {
