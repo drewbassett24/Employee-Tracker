@@ -40,7 +40,7 @@ Then use Node index.js to run it.
 
 ## Video Walkthrough
 
-
+https://user-images.githubusercontent.com/73472116/132766797-646266f1-4485-4033-8b87-9c8f3b61e04d.mp4
 
 ## Contributions
 Drew Bassett
